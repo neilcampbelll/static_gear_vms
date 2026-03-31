@@ -45,7 +45,7 @@ static_vms <- st_set_geometry(
 st_crs(static_vms) <- 4326
 
 pal_cols <- c("#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026")
-api_key  <- "daP1LW1QsnfUBIy68QHp"
+api_key  <- readLines("api_key.txt")
 years    <- sort(unique(static_vms$year))
 
 for (yr in years) {
@@ -200,7 +200,7 @@ static_vms <- st_set_geometry(
 st_crs(static_vms) <- 4326
 
 pal_cols <- c("#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026")
-api_key  <- "daP1LW1QsnfUBIy68QHp"
+api_key  <- readLines("api_key.txt")
 years    <- sort(unique(static_vms$year))
 
 for (yr in years) {
@@ -355,7 +355,7 @@ static_vms <- st_set_geometry(
 st_crs(static_vms) <- 4326
 
 pal_cols <- c("#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026")
-api_key  <- "daP1LW1QsnfUBIy68QHp"
+api_key  <- readLines("api_key.txt")
 years    <- sort(unique(static_vms$year))
 
 for (yr in years) {

@@ -50,3 +50,6 @@ rsconnect/
 
 # outputs of the script
 *.html
+
+api_key.txt
+
