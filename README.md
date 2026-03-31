@@ -10,11 +10,6 @@ Map tiles are served by [MapTiler Ocean](https://www.maptiler.com/maps/#ocean) â
 
 ## Installation
 
-### R packages (CRAN)
-```r
-install.packages(c("sf", "dplyr", "leaflet", "htmltools", "htmlwidgets", "jsonlite"))
-```
-
 ### icesVMS (r-universe)
 ```r
 install.packages("icesVMS", repos = "https://ices-tools-prod.r-universe.dev")
@@ -28,18 +23,43 @@ install.packages("vmstools_0.77.tar.gz", repos = NULL, type = "source")
 unlink("vmstools_0.77.tar.gz")
 ```
 
+### Everything else
+
+```
+pacman::p_load(icesVMS, sf, vmstools, dplyr, tidyverse, marmap, leaflet,
+               raster, viridis, rnaturalearth, rnaturalearthdata,
+               htmltools, htmlwidgets, jsonlite)
+```
+
+
 ## Usage
 
 1. Set your MapTiler API key and define the years and gear codes to query:
 ```r
 api_key      <- "your_maptiler_api_key"
-years        <- 2012:2024
-static_lines <- c("LLS", "FPO", "GNS", "GTR")
+
+years        <- 2009:2024
+
+static_lines <- c("LX", "LLS")
+
+entangling_nets <- c("GTR", "GNS", "GN", "GTN")
+
+traps_and_pots <- c("FPO", "FPN")
+
 ```
 
 2. Query the database and build the spatial data frame:
 ```r
-results %
+## Do it all for static lines
+results <- list()
+
+for (i in years) {
+  for (j in static_lines) {
+    results[[length(results) + 1]] <- get_vms(year = i, gear_code = j)
+  }
+}
+
+static_vms <- bind_rows(results) %>%
   filter(!is.na(cSquare)) %>%
   group_by(year, vesselLengthCategory, cSquare) %>%
   summarise(fishingHours = sum(fishingHours, na.rm = TRUE), .groups = "drop") %>%
@@ -49,13 +69,19 @@ results %
       mutate(vesselLengthCategory = "All Vessels")
   ) %>%
   mutate(gearCode = "Static Lines",
-    geom = with(CSquare2LonLat(cSquare, 0.05), wkt_csquare(lat = SI_LATI, lon = SI_LONG))) %>%
+         geom = with(CSquare2LonLat(cSquare, 0.05), wkt_csquare(lat = SI_LATI, lon = SI_LONG))) %>%
   st_as_sf(wkt = "geom", crs = 4326)
+
+static_vms <- st_set_geometry(
+  static_vms,
+  st_as_sfc(st_as_binary(st_geometry(static_vms), precision = 10000))
+)
+
+st_crs(static_vms) <- 4326
 ```
 
 3. Generate one interactive HTML map per year:
-```r
-source("build_maps.R")
-```
 
-This produces files named `static_vms_YYYY.html` in the working directory. Each map includes a dropdown to filter by vessel length category and hover tooltips showing gear type and fishing hours.
+The script loops through an html generation process, saving out effort (hours "fished") for each year as an interactive html file.
+
+Files are named `static_vms_YYYY.html` in the working directory. Each map includes a dropdown to filter by vessel length category and hover tooltips showing gear type and fishing hours.
