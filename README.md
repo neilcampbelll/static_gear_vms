@@ -40,7 +40,7 @@ api_key      <- "your_maptiler_api_key"
 
 years        <- 2009:2024
 
-static_lines <- c("LX", "LLS")
+static_lines <- c("LLS")
 
 entangling_nets <- c("GTR", "GNS", "GN", "GTN")
 
